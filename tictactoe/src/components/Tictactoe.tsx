@@ -13,7 +13,7 @@ const Tictactoe = () => {
         canvas.height = size;
 
         const gridSize = 3;
-        const lineWidth = 2;
+        const lineWidth = 4;
         ctx.lineWidth = lineWidth;
         ctx.strokeStyle = "#000";
 
