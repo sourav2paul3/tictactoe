@@ -1,11 +1,7 @@
 import "./App.css";
-
+import Tictactoe from "./components/Tictactoe";
 function App() {
-  return (
-    <>
-      <div>HI</div>
-    </>
-  );
+  return <Tictactoe />;
 }
 
 export default App;
