@@ -1,9 +1,10 @@
 import { useRef, useEffect } from "react";
 import { useTicTacToe } from "../Context/TicTacToeProvider";
+import GameOverPopUp from "./GameOverPopUp";
 
 const TictactoeBoard = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const { board, makeMove, drawBoard } = useTicTacToe();
+  const { board, makeMove, drawBoard, gameOver, winner } = useTicTacToe();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -21,6 +22,8 @@ const TictactoeBoard = () => {
   }, [board, drawBoard]);
 
   const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
+    if (gameOver) return;
+
     const canvas = canvasRef.current;
     if (canvas) {
       const rect = canvas.getBoundingClientRect();
@@ -42,6 +45,7 @@ const TictactoeBoard = () => {
         className="h-[250px] w-[250px]"
         onClick={handleClick}
       ></canvas>
+      {gameOver && <GameOverPopUp winner={winner} />}
     </div>
   );
 };
