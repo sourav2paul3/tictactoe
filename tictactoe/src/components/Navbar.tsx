@@ -2,7 +2,7 @@ import { ImExit } from "react-icons/im";
 import { RiResetLeftFill } from "react-icons/ri";
 import { useTicTacToe } from "../Context/TicTacToeProvider";
 const Navbar = () => {
-  const { resetGame } = useTicTacToe();
+  const { resetGame, xScore, oScore, compScore } = useTicTacToe();
   const handleReset = () => {
     resetGame();
   };
@@ -18,10 +18,10 @@ const Navbar = () => {
           border-gray-400 "
       >
         <div className=" flex gap-2">
-          1st Player:<span>123</span>
+          X Player:<span>{xScore}</span>
         </div>
         <div className=" flex gap-2">
-          2nd Player:<span>123</span>
+          Y Player:<span>{oScore}</span>
         </div>
       </div>
       <div className="flex items-center justify-center gap-30 mt-4">

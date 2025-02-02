@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+} from "react";
 
 type TicTacToeContextProps = {
   board: (string | null)[][];
@@ -10,6 +16,11 @@ type TicTacToeContextProps = {
     gridSize: number
   ) => void;
   resetGame: () => void;
+  gameOver: boolean;
+  winner: string | null;
+  xScore: number;
+  oScore: number;
+  compScore: number;
 };
 
 const TicTacToeContext = createContext<TicTacToeContextProps | undefined>(
@@ -23,16 +34,45 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
       .map(() => Array(3).fill(null))
   );
   const [currentPlayer, setCurrentPlayer] = useState("X");
+  const [gameOver, setGameOver] = useState(false);
+  const [winner, setWinner] = useState<string | null>(null);
+  const [xScore, setXScore] = useState<number>(0);
+  const [oScore, setOScore] = useState<number>(0);
+  const [compScore, setCompScore] = useState<number>(0);
 
-  const makeMove = (row: number, col: number) => {
-    if (!board[row][col]) {
+  const makeMove = useCallback(
+    (row: number, col: number) => {
+      if (gameOver || board[row][col]) {
+        return;
+      }
+
+      // Update the board with the new move
       const newBoard = board.map((r, i) =>
         i === row ? r.map((c, j) => (j === col ? currentPlayer : c)) : r
       );
       setBoard(newBoard);
-      setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
-    }
-  };
+
+      // Check for win or draw after the move is made
+      if (checkWin(row, col)) {
+        setGameOver(true);
+        setWinner(currentPlayer);
+        if (currentPlayer === "X") {
+          setXScore((prev) => prev + 1);
+        } else if (currentPlayer === "O") {
+          setOScore((prev) => prev + 1);
+        }
+        console.log("win");
+      } else if (newBoard.flat().every((cell) => cell !== null)) {
+        setGameOver(true);
+        setWinner("Draw");
+        console.log("Draw");
+      } else {
+        setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+        console.log("Continue");
+      }
+    },
+    [board, gameOver, currentPlayer] // makeMove depends on these states
+  );
 
   const drawBoard = (
     ctx: CanvasRenderingContext2D,
@@ -111,11 +151,38 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
         .map(() => Array(3).fill(null))
     );
     setCurrentPlayer("X");
+    setGameOver(false);
+    setWinner(null);
+  };
+
+  const checkWin = (row: number, col: number): boolean => {
+    const player = board[row][col];
+
+    if (board[row].every((cell) => cell === player)) return true;
+
+    if (board.every((r) => r[col] === player)) return true;
+
+    if (row === col && board.every((r, i) => r[i] === player)) return true;
+    if (row + col === 2 && board.every((r, i) => r[2 - i] === player))
+      return true;
+
+    return false;
   };
 
   return (
     <TicTacToeContext.Provider
-      value={{ board, currentPlayer, makeMove, drawBoard, resetGame }}
+      value={{
+        board,
+        currentPlayer,
+        makeMove,
+        drawBoard,
+        resetGame,
+        gameOver,
+        winner,
+        xScore,
+        oScore,
+        compScore,
+      }}
     >
       {children}
     </TicTacToeContext.Provider>
