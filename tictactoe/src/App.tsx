@@ -1,7 +1,13 @@
 import "./App.css";
-import Tictactoe from "./components/Tictactoe";
+import Navbar from "./components/Navbar";
+import Tictactoe from "./components/TictactoeBoard";
 function App() {
-  return <Tictactoe />;
+  return (
+    <div>
+      <Navbar />
+      <Tictactoe />;
+    </div>
+  );
 }
 
 export default App;
