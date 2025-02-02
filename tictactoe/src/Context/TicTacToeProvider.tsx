@@ -21,6 +21,8 @@ type TicTacToeContextProps = {
   winner: string | null;
   xScore: number;
   oScore: number;
+  mode: string | null;
+  setMode: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const TicTacToeContext = createContext<TicTacToeContextProps | undefined>(
@@ -38,6 +40,7 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
   const [winner, setWinner] = useState<string | null>(null);
   const [xScore, setXScore] = useState(0);
   const [oScore, setOScore] = useState(0);
+  const [mode, setMode] = useState<string>("comp");
 
   const makeMove = useCallback(
     (row: number, col: number) => {
@@ -182,6 +185,8 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
         winner,
         xScore,
         oScore,
+        mode,
+        setMode,
       }}
     >
       {children}
