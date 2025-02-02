@@ -23,11 +23,11 @@ const Navbar = () => {
         </div>
         <div className="grid grid-cols-1 gap-2">
           <div className="flex items-center gap-2 ">
-            <FaUser size={15} /> Vs <HiComputerDesktop size={15} />
+            <FaUser size={15} /> vs <HiComputerDesktop size={15} />
           </div>
           <span className="border-b border-gray-400"></span>
           <div className="flex items-center gap-2">
-            <FaUser size={15} /> Vs <FaUser size={15} />
+            <FaUser size={15} /> vs <FaUser size={15} />
           </div>
         </div>
         <div className="flex gap-2">
