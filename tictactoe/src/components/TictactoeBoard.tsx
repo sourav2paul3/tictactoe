@@ -1,6 +1,4 @@
 import { useRef, useEffect, useState } from "react";
-import { GiCrossMark } from "react-icons/gi";
-import { FaRegCircle } from "react-icons/fa";
 
 const Tictactoe = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -28,7 +26,7 @@ const Tictactoe = () => {
         drawBoard(ctx, size, gridSize);
       }
     }
-  }, [board]); // Re-draw when board state changes
+  }, [board]);
 
   const drawBoard = (
     ctx: CanvasRenderingContext2D,
@@ -47,7 +45,6 @@ const Tictactoe = () => {
       ctx.stroke();
     }
 
-    // Draw Xs and Os
     for (let row = 0; row < gridSize; row++) {
       for (let col = 0; col < gridSize; col++) {
         if (board[row][col] === "X") {
