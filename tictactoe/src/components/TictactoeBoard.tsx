@@ -1,13 +1,9 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
+import { useTicTacToe } from "../Context/TicTacToeProvider";
 
-const Tictactoe = () => {
+const TictactoeBoard = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [board, setBoard] = useState(
-    Array(3)
-      .fill(null)
-      .map(() => Array(3).fill(null))
-  );
-  const [currentPlayer, setCurrentPlayer] = useState("X");
+  const { board, makeMove } = useTicTacToe();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -104,13 +100,7 @@ const Tictactoe = () => {
       const col = Math.floor(x / cellSize);
       const row = Math.floor(y / cellSize);
 
-      if (!board[row][col]) {
-        const newBoard = board.map((r, i) =>
-          i === row ? r.map((c, j) => (j === col ? currentPlayer : c)) : r
-        );
-        setBoard(newBoard);
-        setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
-      }
+      makeMove(row, col);
     }
   };
 
@@ -125,4 +115,4 @@ const Tictactoe = () => {
   );
 };
 
-export default Tictactoe;
+export default TictactoeBoard;

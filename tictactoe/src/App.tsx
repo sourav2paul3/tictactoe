@@ -1,11 +1,14 @@
 import "./App.css";
 import Navbar from "./components/Navbar";
-import Tictactoe from "./components/TictactoeBoard";
+import TictactoeBoard from "./components/TictactoeBoard";
+import { TicTacToeProvider } from "./Context/TicTacToeProvider";
 function App() {
   return (
     <div>
-      <Navbar />
-      <Tictactoe />;
+      <TicTacToeProvider>
+        <Navbar />
+        <TictactoeBoard />;
+      </TicTacToeProvider>
     </div>
   );
 }
