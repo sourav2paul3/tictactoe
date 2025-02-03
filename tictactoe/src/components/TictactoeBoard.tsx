@@ -4,16 +4,8 @@ import GameOverPopUp from "./GameOverPopUp";
 
 const TictactoeBoard = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const {
-    board,
-    makeMove,
-    drawBoard,
-    gameOver,
-    winner,
-    mode,
-    currentPlayer,
-    triggerComputerMove,
-  } = useTicTacToe();
+  const { board, makeMove, drawBoard, gameOver, winner, mode, currentPlayer } =
+    useTicTacToe();
 
   useEffect(() => {
     const canvas = canvasRef.current;
