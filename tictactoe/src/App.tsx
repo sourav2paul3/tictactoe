@@ -7,7 +7,7 @@ function App() {
     <div>
       <TicTacToeProvider>
         <Navbar />
-        <TictactoeBoard />;
+        <TictactoeBoard />
       </TicTacToeProvider>
     </div>
   );
