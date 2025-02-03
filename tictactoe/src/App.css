@@ -3,6 +3,9 @@
 body {
   background-color: #add8e6;
   font-family: "Orbitron", sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .backdrop-blur {
