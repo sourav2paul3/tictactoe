@@ -5,7 +5,7 @@ import { FaUser } from "react-icons/fa";
 import { HiComputerDesktop } from "react-icons/hi2";
 
 const Navbar = () => {
-  const { resetGame, xScore, oScore, mode, setMode } = useTicTacToe();
+  const { resetGame, xScore, oScore, mode, switchMode } = useTicTacToe();
 
   const handleReset = () => {
     resetGame();
@@ -26,7 +26,7 @@ const Navbar = () => {
             className={`flex items-center gap-2 cursor-pointer p-2 rounded-md ${
               mode === "comp" ? "bg-gray-800 text-white" : "bg-transparent"
             }`}
-            onClick={() => setMode("comp")}
+            onClick={() => switchMode("comp")}
           >
             <FaUser size={15} /> vs <HiComputerDesktop size={15} />
           </div>
@@ -35,7 +35,7 @@ const Navbar = () => {
             className={`flex items-center gap-2 cursor-pointer p-2 rounded-md ${
               mode === "user" ? "bg-gray-800 text-white" : "bg-transparent"
             }`}
-            onClick={() => setMode("user")}
+            onClick={() => switchMode("user")}
           >
             <FaUser size={15} /> vs <FaUser size={15} />
           </div>

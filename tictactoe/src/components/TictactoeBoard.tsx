@@ -4,7 +4,16 @@ import GameOverPopUp from "./GameOverPopUp";
 
 const TictactoeBoard = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const { board, makeMove, drawBoard, gameOver, winner } = useTicTacToe();
+  const {
+    board,
+    makeMove,
+    drawBoard,
+    gameOver,
+    winner,
+    mode,
+    currentPlayer,
+    triggerComputerMove,
+  } = useTicTacToe();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -24,6 +33,8 @@ const TictactoeBoard = () => {
   const handleClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
     if (gameOver) return;
 
+    if (mode === "comp" && currentPlayer === "O") return;
+
     const canvas = canvasRef.current;
     if (canvas) {
       const rect = canvas.getBoundingClientRect();
@@ -33,8 +44,13 @@ const TictactoeBoard = () => {
 
       const col = Math.floor(x / cellSize);
       const row = Math.floor(y / cellSize);
-
       makeMove(row, col);
+
+      if (mode === "comp" && !gameOver) {
+        setTimeout(() => {
+          triggerComputerMove();
+        }, 200);
+      }
     }
   };
 
@@ -42,7 +58,7 @@ const TictactoeBoard = () => {
     <div className="flex items-center justify-center h-[450px]">
       <canvas
         ref={canvasRef}
-        className="h-[250px] w-[250px]"
+        className="h-[250px] w-[250px] cursor-pointer"
         onClick={handleClick}
       ></canvas>
       {gameOver && <GameOverPopUp winner={winner} />}

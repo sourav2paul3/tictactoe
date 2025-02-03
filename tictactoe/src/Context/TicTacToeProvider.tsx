@@ -4,10 +4,9 @@ import {
   useState,
   ReactNode,
   useCallback,
-  useEffect,
 } from "react";
 
-type TicTacToeContextProps = {
+interface TicTacToeContextProps {
   board: (string | null)[][];
   currentPlayer: string;
   makeMove: (row: number, col: number) => void;
@@ -21,16 +20,18 @@ type TicTacToeContextProps = {
   winner: string | null;
   xScore: number;
   oScore: number;
-  mode: string | null;
+  mode: string;
   setMode: React.Dispatch<React.SetStateAction<string>>;
-};
+  switchMode: (mode: string) => void;
+  triggerComputerMove: () => void;
+}
 
 const TicTacToeContext = createContext<TicTacToeContextProps | undefined>(
   undefined
 );
 
 export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
-  const [board, setBoard] = useState(
+  const [board, setBoard] = useState<(string | null)[][]>(
     Array(3)
       .fill(null)
       .map(() => Array(3).fill(null))
@@ -54,20 +55,98 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
       if (checkWin(row, col, newBoard)) {
         setGameOver(true);
         setWinner(currentPlayer);
-        if (currentPlayer === "X") {
-          setXScore((prev) => prev + 1);
-        } else if (currentPlayer === "O") {
-          setOScore((prev) => prev + 1);
-        }
+        currentPlayer === "X"
+          ? setXScore((prev) => prev + 1)
+          : setOScore((prev) => prev + 1);
       } else if (newBoard.flat().every((cell) => cell !== null)) {
         setGameOver(true);
         setWinner("Draw");
       } else {
         setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
       }
+      console.log("make move");
+      console.log(board);
     },
     [board, gameOver, currentPlayer]
   );
+
+  const triggerComputerMove = () => {
+    console.log("Trigger computer move");
+    console.log(board);
+
+    // Ensure that possibleMoves are calculated based on the current state of the board
+    const possibleMoves: [number, number][] = [];
+
+    // Loop through the board and find all available (null) cells
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < 3; j++) {
+        if (board[i][j] === null) {
+          possibleMoves.push([i, j]);
+        }
+      }
+    }
+
+    console.log("Possible moves:", possibleMoves);
+
+    // Check if the computer can win
+    for (const [i, j] of possibleMoves) {
+      const tempBoard = board.map((row) => [...row]); // Deep copy of the board
+      tempBoard[i][j] = "O"; // Simulate "O" move
+      if (checkWin(i, j, tempBoard)) {
+        console.log("Computer wins by moving at", i, j);
+        handleMove(tempBoard, "O", i, j); // Make the winning move
+        return; // Exit after making the winning move
+      }
+    }
+
+    // Check if the player "X" can win and block them
+    for (const [i, j] of possibleMoves) {
+      const tempBoard = board.map((row) => [...row]); // Deep copy of the board
+      tempBoard[i][j] = "X"; // Simulate "X" move
+      if (checkWin(i, j, tempBoard)) {
+        console.log("Blocking player X's win at", i, j);
+        handleMove(tempBoard, "O", i, j); // Block player "X" from winning
+        return; // Exit after blocking the "X" win
+      }
+    }
+
+    // If no winning or blocking move, make a random move
+    const [x, y] =
+      possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+    console.log("Making random move at", x, y);
+    const tempBoard = board.map((row) => [...row]); // Deep copy of the board
+    handleMove(tempBoard, "O", x, y); // Make the random move
+  };
+
+  const handleMove = (
+    newBoard: (string | null)[][],
+    player: string,
+    row: number,
+    col: number
+  ) => {
+    newBoard[row][col] = player;
+    setBoard([...newBoard]); // Make sure to set the board immutably
+
+    if (checkWin(row, col, newBoard)) {
+      setGameOver(true);
+      setWinner(player);
+      player === "O"
+        ? setOScore((prev) => prev + 1)
+        : setXScore((prev) => prev + 1);
+    } else if (newBoard.flat().every((cell) => cell !== null)) {
+      setGameOver(true);
+      setWinner("Draw");
+    } else {
+      setCurrentPlayer(player === "X" ? "O" : "X");
+    }
+  };
+
+  const switchMode = (mode: string) => {
+    resetGame();
+    setXScore(0);
+    setOScore(0);
+    setMode(mode);
+  };
 
   const drawBoard = (
     ctx: CanvasRenderingContext2D,
@@ -81,25 +160,21 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
     ctx.clearRect(0, 0, size, size);
 
     for (let i = 1; i < gridSize; i++) {
-      const y = (i * size) / gridSize;
-      const x = (i * size) / gridSize;
+      const pos = (i * size) / gridSize;
       ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(size, y);
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, size);
+      ctx.moveTo(0, pos);
+      ctx.lineTo(size, pos);
+      ctx.moveTo(pos, 0);
+      ctx.lineTo(pos, size);
       ctx.stroke();
     }
 
-    for (let row = 0; row < gridSize; row++) {
-      for (let col = 0; col < gridSize; col++) {
-        if (board[row][col] === "X") {
-          drawX(ctx, col, row, size / gridSize);
-        } else if (board[row][col] === "O") {
-          drawO(ctx, col, row, size / gridSize);
-        }
-      }
-    }
+    board.forEach((row, rIdx) =>
+      row.forEach((cell, cIdx) => {
+        if (cell === "X") drawX(ctx, cIdx, rIdx, size / gridSize);
+        if (cell === "O") drawO(ctx, cIdx, rIdx, size / gridSize);
+      })
+    );
   };
 
   const drawX = (
@@ -109,10 +184,10 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
     cellSize: number
   ) => {
     const padding = 25;
-    const x1 = col * cellSize + padding;
-    const y1 = row * cellSize + padding;
-    const x2 = (col + 1) * cellSize - padding;
-    const y2 = (row + 1) * cellSize - padding;
+    const x1 = col * cellSize + padding,
+      y1 = row * cellSize + padding;
+    const x2 = (col + 1) * cellSize - padding,
+      y2 = (row + 1) * cellSize - padding;
 
     ctx.strokeStyle = "green";
     ctx.beginPath();
@@ -129,8 +204,8 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
     row: number,
     cellSize: number
   ) => {
-    const centerX = col * cellSize + cellSize / 2;
-    const centerY = row * cellSize + cellSize / 2;
+    const centerX = col * cellSize + cellSize / 2,
+      centerY = row * cellSize + cellSize / 2;
     const radius = (cellSize - 50) / 2;
 
     ctx.strokeStyle = "red";
@@ -157,21 +232,13 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
   ): boolean => {
     const player = newBoard[row][col];
 
-    if (
-      newBoard[row].every((cell) => cell === player) ||
-      newBoard.every((r) => r[col] === player) ||
-      (row === col && newBoard.every((r, i) => r[i] === player)) ||
-      (row + col === 2 && newBoard.every((r, i) => r[2 - i] === player))
-    ) {
-      return true;
-    }
-
-    return false;
+    return (
+      newBoard[row].every((cell) => cell === player) || // Check row
+      newBoard.every((r) => r[col] === player) || // Check column
+      (row === col && newBoard.every((r, i) => r[i] === player)) || // Check diagonal 1
+      (row + col === 2 && newBoard.every((r, i) => r[2 - i] === player)) // Check diagonal 2
+    );
   };
-
-  useEffect(() => {
-    if (!gameOver) return;
-  }, [gameOver]);
 
   return (
     <TicTacToeContext.Provider
@@ -187,6 +254,8 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
         oScore,
         mode,
         setMode,
+        switchMode,
+        triggerComputerMove,
       }}
     >
       {children}
@@ -194,7 +263,7 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-export const useTicTacToe = () => {
+export const useTicTacToe = (): TicTacToeContextProps => {
   const context = useContext(TicTacToeContext);
   if (!context) {
     throw new Error("useTicTacToe must be used within a TicTacToeProvider");
