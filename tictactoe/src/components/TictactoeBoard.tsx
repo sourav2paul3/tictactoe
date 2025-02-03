@@ -45,12 +45,6 @@ const TictactoeBoard = () => {
       const col = Math.floor(x / cellSize);
       const row = Math.floor(y / cellSize);
       makeMove(row, col);
-
-      if (mode === "comp" && !gameOver) {
-        setTimeout(() => {
-          triggerComputerMove();
-        }, 200);
-      }
     }
   };
 

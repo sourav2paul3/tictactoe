@@ -4,6 +4,7 @@ import {
   useState,
   ReactNode,
   useCallback,
+  useEffect,
 } from "react";
 
 interface TicTacToeContextProps {
@@ -73,11 +74,7 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
   const triggerComputerMove = () => {
     console.log("Trigger computer move");
     console.log(board);
-
-    // Ensure that possibleMoves are calculated based on the current state of the board
     const possibleMoves: [number, number][] = [];
-
-    // Loop through the board and find all available (null) cells
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         if (board[i][j] === null) {
@@ -87,36 +84,39 @@ export const TicTacToeProvider = ({ children }: { children: ReactNode }) => {
     }
 
     console.log("Possible moves:", possibleMoves);
-
-    // Check if the computer can win
     for (const [i, j] of possibleMoves) {
-      const tempBoard = board.map((row) => [...row]); // Deep copy of the board
-      tempBoard[i][j] = "O"; // Simulate "O" move
+      const tempBoard = board.map((row) => [...row]);
+      tempBoard[i][j] = "O";
       if (checkWin(i, j, tempBoard)) {
         console.log("Computer wins by moving at", i, j);
-        handleMove(tempBoard, "O", i, j); // Make the winning move
-        return; // Exit after making the winning move
+        handleMove(tempBoard, "O", i, j);
+        return;
       }
     }
 
-    // Check if the player "X" can win and block them
     for (const [i, j] of possibleMoves) {
-      const tempBoard = board.map((row) => [...row]); // Deep copy of the board
-      tempBoard[i][j] = "X"; // Simulate "X" move
+      const tempBoard = board.map((row) => [...row]);
+      tempBoard[i][j] = "X";
       if (checkWin(i, j, tempBoard)) {
         console.log("Blocking player X's win at", i, j);
-        handleMove(tempBoard, "O", i, j); // Block player "X" from winning
-        return; // Exit after blocking the "X" win
+        handleMove(tempBoard, "O", i, j);
+        return;
       }
     }
-
-    // If no winning or blocking move, make a random move
     const [x, y] =
       possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
     console.log("Making random move at", x, y);
-    const tempBoard = board.map((row) => [...row]); // Deep copy of the board
-    handleMove(tempBoard, "O", x, y); // Make the random move
+    const tempBoard = board.map((row) => [...row]);
+    handleMove(tempBoard, "O", x, y);
   };
+
+  useEffect(() => {
+    if (mode === "comp" && currentPlayer === "O" && !gameOver) {
+      // setTimeout(() => {
+      triggerComputerMove();
+      // });
+    }
+  }, [board, currentPlayer, mode, gameOver, triggerComputerMove]);
 
   const handleMove = (
     newBoard: (string | null)[][],
